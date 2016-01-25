@@ -25,7 +25,7 @@ var cursor   = 0;  // 0..611
 var repeat   = false;
 var show     = true;
 var tmpShow  = false;
-var playText = '';
+var sURL     = '';
 
 $(document).ready(function(){
 
@@ -46,24 +46,21 @@ $(document).ready(function(){
 		my_trackName.text( fname[seq[cursor]] );
 		my_progress.text( '(' + (cursor+1) + ' of 612)' );
 
-		// Fetch text file from server
-		playText = '';
-		var oRequest = new XMLHttpRequest();
-		var sURL  = "crim/text/" + fname[seq[cursor]] + '.txt';
-		oRequest.open("GET",sURL,false);
-		oRequest.setRequestHeader("User-Agent",navigator.userAgent);
-		oRequest.send(null);
-		if (oRequest.status == 200) {
-			playText = oRequest.responseText;
-		}
+		// Save url to text file
+		sURL  = "crim/text/" + fname[seq[cursor]] + '.txt';
 
-		// Display text if enabled
-		my_text.html( show ? playText : '' );
+		// Clear temporary show flag
 		tmpShow = false;
 
 		// Highlight this entry on the big table
 		$("#bt" + seq[cursor]).css( {'background-color' : 'yellow' });
-	}
+
+		// Display text if enabled
+		if ( show )
+			my_text.load(sURL);
+		else
+			my_text.html('');
+}
 
 	// Instance jPlayer
 	my_jPlayer.jPlayer({
@@ -122,7 +119,7 @@ $(document).ready(function(){
 			}
 			else {
 				tmpShow = true;
-				my_text.html(playText);
+				my_text.load(sURL);
 			}
 		}
 	});
@@ -132,7 +129,11 @@ $(document).ready(function(){
 
 function showCheck(box) {
 	show = box.checked;
-	$("#jp_container .my-text").html( show ? playText : '' );
+	if (show)
+		$("#jp_container .my-text").load(sURL);
+	else {
+		$("#jp_container .my-text").html('');
+	}
 }
 
 
