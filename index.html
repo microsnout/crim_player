@@ -6,7 +6,7 @@
 <title>microsnout : CRIM</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<meta name="description" content="microsnout : QuŽbŽcois listening practice tool" />
+<meta name="description" content="microsnout : Quï¿½bï¿½cois listening practice tool" />
 <meta name="keywords" content="jPlayer, jQuery, jQuery plugin, media, audio, media player, audio player, mp3, mp4, m4a, aac, ogg, oga" />
 
 <!--[if lt IE 9]>
@@ -18,7 +18,7 @@
 <script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
 
 <script type="text/javascript">
-	
+
 //<![CDATA[
 
 var cursor   = 0;  // 0..611
@@ -36,31 +36,31 @@ $(document).ready(function(){
 		my_progress = $("#jp_container .progress"),
 		my_text = $("#jp_container .my-text"),
 		tic_show = $("#jp_container .tic-show");
-		
+
 	function startPlay() {
 		// Load audio file into jPlayer and start it
-		my_jPlayer.jPlayer("setMedia", {mp3: "audio/" + fname[seq[cursor]] + ".m4a"});
+		my_jPlayer.jPlayer("setMedia", {mp3: "crim/audio/" + fname[seq[cursor]] + ".m4a"});
 		my_jPlayer.jPlayer("play");
-		
+
 		// Update display
 		my_trackName.text( fname[seq[cursor]] );
-		my_progress.text( '(' + (cursor+1) + ' of 612)' );		
+		my_progress.text( '(' + (cursor+1) + ' of 612)' );
 
 		// Fetch text file from server
 		playText = '';
 		var oRequest = new XMLHttpRequest();
-		var sURL  = "text/" + fname[seq[cursor]] + '.txt';
+		var sURL  = "crim/text/" + fname[seq[cursor]] + '.txt';
 		oRequest.open("GET",sURL,false);
 		oRequest.setRequestHeader("User-Agent",navigator.userAgent);
 		oRequest.send(null);
 		if (oRequest.status == 200) {
 			playText = oRequest.responseText;
 		}
-		
-		// Display text if enabled 
+
+		// Display text if enabled
 		my_text.html( show ? playText : '' );
 		tmpShow = false;
-		
+
 		// Highlight this entry on the big table
 		$("#bt" + seq[cursor]).css( {'background-color' : 'yellow' });
 	}
@@ -91,28 +91,28 @@ $(document).ready(function(){
 		supplied: "mp3",
 		wmode: "window"
 	});
-	
+
 	$("#jp_container .my-next").click(function(e) {
 		my_jPlayer.jPlayer("stop");
 		if (cursor < 611) {
 			cursor++;
 			startPlay();
-		}		
-	});	
+		}
+	});
 
 	$("#jp_container .my-prev").click(function(e) {
 		my_jPlayer.jPlayer("stop");
 		if (cursor > 0) {
 			cursor--;
 			startPlay();
-		}		
+		}
 		$(this).blur();
 		return false;
-	});	
+	});
 
 	$("#jp_container .my-again").click(function(e) {
 		my_jPlayer.jPlayer("play", 0);
-	});	
+	});
 
 	$("#jp_container .my-show").click(function(e) {
 		if (!show) {
@@ -125,7 +125,7 @@ $(document).ready(function(){
 				my_text.html(playText);
 			}
 		}
-	});	
+	});
 
 	startPlay();
 });
@@ -141,9 +141,9 @@ function showCheck(box) {
 function randomize(options){
     var options = options || {};
     var maxNum = options.maxNumber || 0;
-    var rand_no = Math.floor(Math.random()*maxNum);    
+    var rand_no = Math.floor(Math.random()*maxNum);
     return rand_no;
-} 
+}
 
 // Generate randomized sequence of indexes from 0 to 611
 var seq = [];
@@ -198,9 +198,9 @@ function makeTable() {
 
 .head-box {
 	color: #0000c0;
-	background: -webkit-gradient(linear,  left top,  left bottom,  
+	background: -webkit-gradient(linear,  left top,  left bottom,
     	from(#c0f0ff), to(#ffffff)
-    	); 
+    	);
 }
 
 .demo-container {
@@ -254,7 +254,7 @@ table.collapse th {
 
 
 <body class="demo">
-	
+
 <div id="container">
 
 	<header class="head-box" hight="100px" width="100%">
@@ -265,7 +265,7 @@ table.collapse th {
 		</tr>
 		</table>
 	</header>
-	
+
 	<div id="content_main">
 		<section>
 
@@ -291,21 +291,21 @@ table.collapse th {
 				<li>Volume :</li>
 				<li> <a class="jp-volume-bar" href="#">|&lt;----------&gt;|</a></li>
 				<li><a class="jp-volume-max" href="#">Max</a></li>
-			</ul>			
+			</ul>
 			<ul>
 				<li><a class="jp-play" href="#">Play</a></li>
 				<li><a class="jp-pause" href="#">Pause</a></li>
-				
+
 				<li><a class="my-prev" href="#">Prev</a></li>
 				<li><a class="my-next" href="#">Next</a></li>
 				<li><a class="my-again" href="#">Again</a></li>
 				<li><a class="my-show" href="#">Show</a></li>
 			</ul>
 			</td>
-			
+
 			<td class="my-text" width="65%" align="left" valign="center">
 			</td>
-		</tr>				
+		</tr>
 		</table>
 
 		</section>
