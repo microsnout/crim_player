@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+
+<title>microsnout : CRIM</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="description" content="microsnout : QuŽbŽcois listening practice tool" />
+<meta name="keywords" content="jPlayer, jQuery, jQuery plugin, media, audio, media player, audio player, mp3, mp4, m4a, aac, ogg, oga" />
+
+<!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
+
+<script type="text/javascript">
+	
+//<![CDATA[
+
+var cursor   = 0;  // 0..611
+var repeat   = false;
+var show     = true;
+var tmpShow  = false;
+var playText = '';
+
+$(document).ready(function(){
+
+	// Local copy of jQuery selectors, for performance.
+	var	my_jPlayer = $("#jquery_jplayer"),
+		my_trackName = $("#jp_container .track-name"),
+		my_extraPlayInfo = $("#jp_container .extra-play-info"),
+		my_progress = $("#jp_container .progress"),
+		my_text = $("#jp_container .my-text"),
+		tic_show = $("#jp_container .tic-show");
+		
+	function startPlay() {
+		// Load audio file into jPlayer and start it
+		my_jPlayer.jPlayer("setMedia", {mp3: "audio/" + fname[seq[cursor]] + ".m4a"});
+		my_jPlayer.jPlayer("play");
+		
+		// Update display
+		my_trackName.text( fname[seq[cursor]] );
+		my_progress.text( '(' + (cursor+1) + ' of 612)' );		
+
+		// Fetch text file from server
+		playText = '';
+		var oRequest = new XMLHttpRequest();
+		var sURL  = "text/" + fname[seq[cursor]] + '.txt';
+		oRequest.open("GET",sURL,false);
+		oRequest.setRequestHeader("User-Agent",navigator.userAgent);
+		oRequest.send(null);
+		if (oRequest.status == 200) {
+			playText = oRequest.responseText;
+		}
+		
+		// Display text if enabled 
+		my_text.html( show ? playText : '' );
+		tmpShow = false;
+		
+		// Highlight this entry on the big table
+		$("#bt" + seq[cursor]).css( {'background-color' : 'yellow' });
+	}
+
+	// Instance jPlayer
+	my_jPlayer.jPlayer({
+		ready: function () {
+			$("#jp_container .track-default").click();
+		},
+		timeupdate: function(event) {
+			my_extraPlayInfo.text(parseInt(event.jPlayer.status.currentPercentAbsolute, 10) + "%");
+		},
+		play: function(event) {
+		},
+		pause: function(event) {
+		},
+		ended: function(event) {
+			if ( repeat ) {
+				my_jPlayer.jPlayer("play", 0);
+			}
+			else if (cursor < 611) {
+				cursor++;
+				startPlay();
+			}
+		},
+		swfPath: "js",
+		cssSelectorAncestor: "#jp_container",
+		supplied: "mp3",
+		wmode: "window"
+	});
+	
+	$("#jp_container .my-next").click(function(e) {
+		my_jPlayer.jPlayer("stop");
+		if (cursor < 611) {
+			cursor++;
+			startPlay();
+		}		
+	});	
+
+	$("#jp_container .my-prev").click(function(e) {
+		my_jPlayer.jPlayer("stop");
+		if (cursor > 0) {
+			cursor--;
+			startPlay();
+		}		
+		$(this).blur();
+		return false;
+	});	
+
+	$("#jp_container .my-again").click(function(e) {
+		my_jPlayer.jPlayer("play", 0);
+	});	
+
+	$("#jp_container .my-show").click(function(e) {
+		if (!show) {
+			if (tmpShow) {
+				tmpShow = false;
+				my_text.html('');
+			}
+			else {
+				tmpShow = true;
+				my_text.html(playText);
+			}
+		}
+	});	
+
+	startPlay();
+});
+
+function showCheck(box) {
+	show = box.checked;
+	$("#jp_container .my-text").html( show ? playText : '' );
+}
+
+
+// **** Start of new code ****
+
+function randomize(options){
+    var options = options || {};
+    var maxNum = options.maxNumber || 0;
+    var rand_no = Math.floor(Math.random()*maxNum);    
+    return rand_no;
+} 
+
+// Generate randomized sequence of indexes from 0 to 611
+var seq = [];
+for ( i=0 ; i<612 ; i++ ) {
+	seq[i] = i;
+}
+for ( xxx in seq ) {
+	var tmp;
+	var yyy = randomize( {maxNumber: seq.length-1} );
+	tmp = seq[xxx];
+	seq[xxx] = seq[yyy];
+	seq[yyy] = tmp;
+}
+
+// Generate filename array
+var prefix  = ['01','02','03','04','09','10','12','13','14','15','16','17','18','20','21','22','24','25','26','28','29'];
+var setsize = [34,47,39,42,24,27,28,29,28,23,27,27,28,26,28,25,32,28,25,24,21];
+var fname   = [];
+var index   = [];
+for ( var x=1 ; x<=50 ; x++ ) {
+	index[x] = (x<10 ? '0' : '') + x;
+}
+for ( var x in prefix ) {
+	for ( var i=1 ; i <= setsize[x] ; i++ ) {
+		fname.push( prefix[x] + '_' + index[i] );
+	}
+}
+
+function makeTable() {
+	var id = 0;
+	document.writeln( '<table id="big_table" class="collapse" border=1 style="dotted">' );
+	for ( r in prefix ) {
+		document.writeln( '<tr>');
+		document.writeln( '<th>' + prefix[r] + '</th>');
+		for ( c=1 ; c<=setsize[r] ; c++ ) {
+			document.writeln( '<td id="bt' + id + '">' );
+			document.writeln( index[c] );
+			document.writeln( '</td>' );
+			id++;
+		}
+		document.writeln( '</tr>' );
+	}
+	document.writeln( '</table>');
+}
+
+
+//]]>
+</script>
+
+<style>
+<!--
+
+.head-box {
+	color: #0000c0;
+	background: -webkit-gradient(linear,  left top,  left bottom,  
+    	from(#c0f0ff), to(#ffffff)
+    	); 
+}
+
+.demo-container {
+	border: 1px solid #009BE3;
+	padding:0 20px;
+	font-family: "Myriad Pro Regular","Trebuchet MS";
+}
+
+.demo-container a, .demo-container a:link, .demo-container a:visited, .demo-container a:hover, .demo-container a:focus, .demo-container a:active {
+	color: #009BE3;
+}
+
+.demo-container ul {
+	list-style-type:none;
+	padding:0;
+	margin:1em 0;
+	width:100%;
+	overflow:hidden;
+}
+
+.demo-container ul span {
+	color: #A0A600;
+}
+
+.demo-container li {
+	float:left;
+	margin-right:1em;
+}
+
+.demo-container p span.track-name {
+	color: #CC0090;
+}
+
+-->
+</style>
+
+<style type="text/css">
+table.collapse {
+  border-width:1px;
+  border-style:dotted;
+  border-collapse:collapse;
+  color: #C0C0C0;
+}
+
+table.collapse th {
+	color: #CC0090;
+}
+</style>
+
+</head>
+
+
+<body class="demo">
+	
+<div id="container">
+
+	<header class="head-box" hight="100px" width="100%">
+		<table width="100%">
+		<tr>
+			<td width="auto"><h1><i> microsnout.com</i></h1></td>
+			<td><img src="drapeau_Quebec.gif" width="64", height="64" align='right' valign="center" /></td>
+		</tr>
+		</table>
+	</header>
+	
+	<div id="content_main">
+		<section>
+
+		<div id="jquery_jplayer"></div>
+
+		<table id="jp_container" class="demo-container" width="100%">
+		<tr>
+			<td width="auto">
+			<p>
+				<span class="track-name">00_00</span>
+				<span class="progress"></span>
+			</p>
+			<p>
+				<span class="jp-current-time"></span>
+				(<span class="extra-play-info"></span>
+				 of <span class="jp-duration"></span>)
+			</p>
+			<form align="left">
+				<input type="checkbox" onClick="repeat = this.checked" /> Repeat Mode<br />
+				<input type="checkbox" checked onClick="showCheck(this)" /> Always Show<br />
+			</form>
+			<ul>
+				<li>Volume :</li>
+				<li> <a class="jp-volume-bar" href="#">|&lt;----------&gt;|</a></li>
+				<li><a class="jp-volume-max" href="#">Max</a></li>
+			</ul>			
+			<ul>
+				<li><a class="jp-play" href="#">Play</a></li>
+				<li><a class="jp-pause" href="#">Pause</a></li>
+				
+				<li><a class="my-prev" href="#">Prev</a></li>
+				<li><a class="my-next" href="#">Next</a></li>
+				<li><a class="my-again" href="#">Again</a></li>
+				<li><a class="my-show" href="#">Show</a></li>
+			</ul>
+			</td>
+			
+			<td class="my-text" width="65%" align="left" valign="center">
+			</td>
+		</tr>				
+		</table>
+
+		</section>
+	</div>
+</div>
+
+<p></p>
+
+<script type="text/javascript">
+	makeTable();
+</script>
+
+</body>
+
+</html>
